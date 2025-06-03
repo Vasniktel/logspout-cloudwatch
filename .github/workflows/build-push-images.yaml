@@ -6,8 +6,12 @@ on:
     branches: ["master"]
 
 jobs:
-  build-and-push-image:
+  build:
     runs-on: ubuntu-latest
+
+    concurrency:
+      group: ${{ github.workflow }}/build
+      cancel-in-progress: false
 
     permissions:
       contents: read
@@ -33,6 +37,8 @@ jobs:
           context: docker
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: ${{ github.repository_owner }}/logspout:${{ github.sha }}
+          tags: |
+            ${{ github.repository_owner }}/logspout:${{ github.sha }}
+            ${{ github.repository_owner }}/logspout:master
           cache-from: type=gha
           cache-to: type=gha,mode=max
